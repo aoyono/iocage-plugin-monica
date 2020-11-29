@@ -64,7 +64,7 @@ cd /usr/local/www/monica/
 
 JAIL_IP=$(ifconfig epair0b | grep 'inet' | awk -F ' ' '{ print $2 }')
 
-cat <<-EOF
+cat <<-EOF > .env
 #
 # Welcome, friend ❤. Thanks for trying out Monica. We hope you'll have fun.
 #
@@ -233,7 +233,7 @@ ENABLE_WEATHER=false
 # Darksky provides an api with 1000 free API calls per day
 # You need to enable the weather above if you provide an API key here.
 DARKSKY_API_KEY=
-EOF > .env
+EOF
 
 composer install --no-interaction --no-suggest --no-dev --ignore-platform-reqs
 php artisan setup:production -v
