@@ -1,12 +1,12 @@
 #!/bin/sh
 
 # Enable the services
-sysrc -f /etc/rc.conf apache2_enable="YES"
+sysrc -f /etc/rc.conf apache24_enable="YES"
 sysrc -f /etc/rc.conf mysql_enable="YES"
 sysrc -f /etc/rc.conf redis_enable="YES"
 
-git clone https://github.com/monicahq/monica.git /var/www/
-cd /var/www/monica
+git clone https://github.com/monicahq/monica.git /usr/local/www/monica
+cd /usr/local/www/monica
 git checkout tags/v2.19.1
 
 # Setup the database
@@ -26,7 +26,7 @@ MNCPASS=`cat /root/mncpassword`
 
 service mysql-server start
 service redis start
-service apache2 start
+service apache24 start
 
 if [ -e "/root/.mysql_secret" ] ; then
    # Mysql > 57 sets a default PW on root
@@ -60,8 +60,11 @@ FLUSH PRIVILEGES;
 EOF
 fi
 
-cd /var/www/monica/
-cat <<EOF
+cd /usr/local/www/monica/
+
+JAIL_IP=$(ifconfig epair0b | grep 'inet' | awk -F ' ' '{ print $2 }')
+
+cat <<-EOF
 #
 # Welcome, friend ❤. Thanks for trying out Monica. We hope you'll have fun.
 #
@@ -86,7 +89,7 @@ HASH_SALT=$(pwgen -s 25 1)
 Hash_LENGTH=18
 
 # The URL of your application.
-APP_URL=http://localhost
+APP_URL=http://${JAIL_IP}
 
 # Force using APP_URL as base url of your application.
 # You should not need this, unless you are using subdirectory config.
@@ -96,15 +99,15 @@ APP_FORCE_URL=false
 # To keep this information secure, we urge you to change the default password
 # Currently only "mysql" compatible servers are working
 DB_CONNECTION=mysql
-DB_HOST=127.0.0.1
-DB_PORT=3306
+#DB_HOST=127.0.0.1
+#DB_PORT=3306
 # You can use mysql unix socket if available, it overrides DB_HOST and DB_PORT values.
-#DB_UNIX_SOCKET=/var/run/mysqld/mysqld.sock
+DB_UNIX_SOCKET=/tmp/mysql.sock
 DB_DATABASE=${DB}
 DB_USERNAME=${USER}
 DB_PASSWORD=${PASS}
 DB_PREFIX=
-DB_TEST_HOST=127.0.0.1
+#DB_TEST_HOST=127.0.0.1
 #DB_TEST_DATABASE=monica_test
 #DB_TEST_USERNAME=homestead
 #DB_TEST_PASSWORD=secret
@@ -170,7 +173,7 @@ SESSION_LIFETIME=120
 QUEUE_CONNECTION=sync
 
 # If you use redis, set the redis host or ip, like:
-#REDIS_HOST=redis
+REDIS_HOST=${JAIL_IP}
 
 # Maximum allowed size for uploaded files, in kilobytes.
 # Make sure this is an integer, without commas or spaces.
@@ -236,11 +239,10 @@ composer install --no-interaction --no-suggest --no-dev --ignore-platform-reqs
 php artisan setup:production -v
 
 
-chgrp -R www-data /var/www/monica
-chmod -R 775 /var/www/monica/storage
+chgrp -R www /usr/local/www/monica
+chmod -R 775 /usr/local/www/monica/storage
 a2enmod rewrite
-a2dissite 000-default.conf
-a2ensite monica.conf
+
 service apache2 restart
 
 cat "Welcome, I am monica" >> /root/PLUGIN_INFO
