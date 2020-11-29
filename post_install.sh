@@ -231,3 +231,5 @@ a2enmod rewrite
 a2dissite 000-default.conf
 a2ensite monica.conf
 service apache2 restart
+
+cat "Welcome, I am monica" >> /root/PLUGIN_INFO
