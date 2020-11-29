@@ -1,3 +1,10 @@
+#!/bin/sh
+
+# Enable the services
+sysrc -f /etc/rc.conf apache2_enable="YES"
+sysrc -f /etc/rc.conf mysql_enable="YES"
+sysrc -f /etc/rc.conf redis_enable="YES"
+
 git clone https://github.com/monicahq/monica.git /var/www/
 cd /var/www/monica
 git checkout tags/v2.19.1
@@ -16,6 +23,10 @@ cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 16 | head -n 1 > /root/dbpasswor
 cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 16 | head -n 1 > /root/mncpassword
 PASS=`cat /root/dbpassword`
 MNCPASS=`cat /root/mncpassword`
+
+service mysql-server start
+service redis start
+service apache2 start
 
 if [ -e "/root/.mysql_secret" ] ; then
    # Mysql > 57 sets a default PW on root
