@@ -1,0 +1,3 @@
+{
+    "servicerestart": "service apache2 restart"
+}
