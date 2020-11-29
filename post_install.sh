@@ -35,11 +35,13 @@ if [ -e "/root/.mysql_secret" ] ; then
 
 # Configure mysql
 mysql -u root -p"${TMPPW}" --connect-expired-password <<-EOF
-CREATE DATABASE ${DB} CHARACTER SET utf8 COLLATE utf8_general_ci;
 ALTER USER 'root'@'localhost' IDENTIFIED BY '${PASS}';
 CREATE USER '${USER}'@'localhost' IDENTIFIED BY '${PASS}';
 GRANT ALL PRIVILEGES ON *.* TO '${USER}'@'localhost' WITH GRANT OPTION;
 GRANT ALL PRIVILEGES ON ${DB}.* TO '${USER}'@'localhost';
+
+CREATE DATABASE ${DB} CHARACTER SET utf8 COLLATE utf8_general_ci;
+
 FLUSH PRIVILEGES;
 EOF
 
@@ -48,7 +50,7 @@ else
 
 # Configure mysql
 mysql -u root <<-EOF
-CREATE DATABASE ${DB} CHARACTER SET utf8 COLLATE utf8_general_ci;
+
 UPDATE mysql.user SET Password=PASSWORD('${PASS}') WHERE User='root';
 DELETE FROM mysql.user WHERE User='root' AND Host NOT IN ('localhost', '127.0.0.1', '::1');
 DELETE FROM mysql.user WHERE User='';
@@ -56,6 +58,9 @@ DELETE FROM mysql.db WHERE Db='test' OR Db='test_%';
 CREATE USER '${USER}'@'localhost' IDENTIFIED BY '${PASS}';
 GRANT ALL PRIVILEGES ON *.* TO '${USER}'@'localhost' WITH GRANT OPTION;
 GRANT ALL PRIVILEGES ON ${DB}.* TO '${USER}'@'localhost';
+
+CREATE DATABASE ${DB} CHARACTER SET utf8 COLLATE utf8_general_ci;
+
 FLUSH PRIVILEGES;
 EOF
 fi
@@ -236,8 +241,7 @@ DARKSKY_API_KEY=
 EOF
 
 composer install --no-interaction --no-suggest --no-dev --ignore-platform-reqs
-php artisan setup:production -v
-
+php artisan setup:production -vvv --no-interaction
 
 chgrp -R www /usr/local/www/monica
 chmod -R 775 /usr/local/www/monica/storage
