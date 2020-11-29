@@ -245,8 +245,7 @@ php artisan setup:production -vvv --no-interaction
 
 chgrp -R www /usr/local/www/monica
 chmod -R 775 /usr/local/www/monica/storage
-a2enmod rewrite
 
-service apache2 restart
+service apache24 restart
 
-cat "Welcome, I am monica" >> /root/PLUGIN_INFO
+echo "Welcome, I am monica" >> /root/PLUGIN_INFO
