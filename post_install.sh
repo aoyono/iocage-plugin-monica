@@ -60,7 +60,8 @@ sed -i '' "s/.*DB_USERNAME=.*/DB_USERNAME=${USER}/" /usr/local/www/monica/.env
 sed -i '' "s/.*DB_PASSWORD=.*/DB_PASSWORD=${PASS}/" /usr/local/www/monica/.env
 sed -i '' "s/.*REDIS_HOST=.*/REDIS_HOST=${JAIL_IP}/" /usr/local/www/monica/.env
 
-sed -i '' "s/\(.*\)Servername.*/\1ServerName ${JAIL_IP}" /usr/local/etc/apache24/Includes/monica.conf
+sed -i '' "s/\(.*\)Servername.*/\1ServerName ${JAIL_IP}/" /usr/local/etc/apache24/Includes/monica.conf
+sed -i '' "s/^# \(LoadModule php7_module\)\(.*\)/\1 \2/" /usr/local/etc/apache24/httpd.conf
 
 
 cp /usr/local/etc/php.ini-production /usr/local/etc/php.ini
