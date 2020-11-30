@@ -30,10 +30,9 @@ service mysql-server start
 service redis start
 service apache24 start
 
-if [ -e "/root/.mysql_secret" ] ; then
-   # Mysql > 57 sets a default PW on root
-   TMPPW=$(cat /root/.mysql_secret | grep -v "^#")
-   echo "SQL Temp Password: $TMPPW"
+# Mysql > 57 sets a default PW on root
+TMPPW=$(cat /root/.mysql_secret | grep -v "^#")
+echo "SQL Temp Password: $TMPPW"
 
 # Configure mysql
 mysql -u root -p"${TMPPW}" --connect-expired-password <<-EOF
@@ -47,25 +46,6 @@ CREATE DATABASE ${DB} CHARACTER SET utf8 COLLATE utf8_general_ci;
 FLUSH PRIVILEGES;
 EOF
 
-else
-   # Mysql <= 56 does not
-
-# Configure mysql
-mysql -u root <<-EOF
-UPDATE mysql.user SET Password=PASSWORD('${PASS}') WHERE User='root';
-DELETE FROM mysql.user WHERE User='root' AND Host NOT IN ('localhost', '127.0.0.1', '::1');
-DELETE FROM mysql.user WHERE User='';
-DELETE FROM mysql.db WHERE Db='test' OR Db='test_%';
-CREATE USER '${USER}'@'localhost' IDENTIFIED BY '${PASS}';
-GRANT ALL PRIVILEGES ON *.* TO '${USER}'@'localhost' WITH GRANT OPTION;
-GRANT ALL PRIVILEGES ON ${DB}.* TO '${USER}'@'localhost';
-
-CREATE DATABASE ${DB} CHARACTER SET utf8 COLLATE utf8_general_ci;
-
-FLUSH PRIVILEGES;
-EOF
-fi
-
 
 JAIL_IP=$(ifconfig epair0b | grep 'inet' | awk -F ' ' '{ print $2 }')
 APP_KEY=$(pwgen -s 32 1)
@@ -74,7 +54,7 @@ HASH_SALT=$(pwgen -s 25 1)
 
 sed -i '' "s/.*APP_KEY=.*/APP_KEY=${APP_KEY}/" /usr/local/www/monica/.env
 sed -i '' "s/.*HASH_SALT=.*/HASH_SALT=${HASH_SALT}/" /usr/local/www/monica/.env
-sed -i '' "s/.*APP_URL=.*/APP_URL=${JAIL_IP}/" /usr/local/www/monica/.env
+sed -i '' "s/.*APP_URL=.*/APP_URL=http://${JAIL_IP}/" /usr/local/www/monica/.env
 sed -i '' "s/.*DB_DATABASE=.*/DB_DATABASE=${DB}/" /usr/local/www/monica/.env
 sed -i '' "s/.*DB_USERNAME=.*/DB_USERNAME=${USER}/" /usr/local/www/monica/.env
 sed -i '' "s/.*DB_PASSWORD=.*/DB_PASSWORD=${PASS}/" /usr/local/www/monica/.env
