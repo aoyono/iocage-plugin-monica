@@ -72,13 +72,13 @@ APP_KEY=$(pwgen -s 32 1)
 HASH_SALT=$(pwgen -s 25 1)
 
 
-sed -i '' 's/.*APP_KEY=.*/APP_KEY=${APP_KEY}/' /usr/local/www/monica/.env
-sed -i '' 's/.*HASH_SALT=.*/HASH_SALT=${HASH_SALT}/' /usr/local/www/monica/.env
-sed -i '' 's/.*APP_URL=.*/APP_URL=${JAIL_IP}/' /usr/local/www/monica/.env
-sed -i '' 's/.*DB_DATABASE=.*/DB_DATABASE=${DB}/' /usr/local/www/monica/.env
-sed -i '' 's/.*DB_USERNAME=.*/DB_USERNAME=${USER}/' /usr/local/www/monica/.env
-sed -i '' 's/.*DB_PASSWORD=.*/DB_PASSWORD=${PASS}/' /usr/local/www/monica/.env
-sed -i '' 's/.*REDIS_HOST=.*/REDIS_HOST=${JAIL_IP}/' /usr/local/www/monica/.env
+sed -i '' "s/.*APP_KEY=.*/APP_KEY=${APP_KEY}/" /usr/local/www/monica/.env
+sed -i '' "s/.*HASH_SALT=.*/HASH_SALT=${HASH_SALT}/" /usr/local/www/monica/.env
+sed -i '' "s/.*APP_URL=.*/APP_URL=${JAIL_IP}/" /usr/local/www/monica/.env
+sed -i '' "s/.*DB_DATABASE=.*/DB_DATABASE=${DB}/" /usr/local/www/monica/.env
+sed -i '' "s/.*DB_USERNAME=.*/DB_USERNAME=${USER}/" /usr/local/www/monica/.env
+sed -i '' "s/.*DB_PASSWORD=.*/DB_PASSWORD=${PASS}/" /usr/local/www/monica/.env
+sed -i '' "s/.*REDIS_HOST=.*/REDIS_HOST=${JAIL_IP}/" /usr/local/www/monica/.env
 
 
 cp /usr/local/etc/php.ini-production /usr/local/etc/php.ini
