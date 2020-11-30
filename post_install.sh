@@ -9,6 +9,8 @@ git clone https://github.com/monicahq/monica.git /usr/local/www/monica
 cd /usr/local/www/monica
 git checkout tags/v2.19.1
 
+cp /usr/local/www/.env /usr/local/www/monica/.env
+
 # Setup the database
 USER="dbadmin"
 DB="monica"
