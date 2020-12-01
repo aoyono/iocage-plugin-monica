@@ -1,3 +1,4 @@
 {
-    "servicerestart": "service apache2 restart"
+    "servicerestart": "service apache24 restart",
+    "serviceget": "/usr/local/bin/monicaget"
 }
