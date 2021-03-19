@@ -9,7 +9,7 @@ sysrc -f /etc/rc.conf mysql_enable="YES"
 sysrc -f /etc/rc.conf redis_enable="NO"
 
 # install the web app
-CURRENT_VERSION=v2.20.0
+CURRENT_VERSION=v2.19.1
 git clone https://github.com/monicahq/monica.git /usr/local/www/monica
 cd /usr/local/www/monica
 git checkout tags/${CURRENT_VERSION}
