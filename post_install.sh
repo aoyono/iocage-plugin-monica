@@ -82,8 +82,8 @@ php artisan setup:production -vvv --force
 php artisan passport:keys
 php artisan passport:client --personal --no-interaction
 
-echo "PASSPORT_PRIVATE_KEY=$(sed -E ':a;N;$!ba;s/\r{0,1}\n/\\n/g' /usr/local/www/monica/storage/oauth-private.key)" >> /usr/local/www/monica/.env
-echo "PASSPORT_PUBLIC_KEY=$(sed -E ':a;N;$!ba;s/\r{0,1}\n/\\n/g' /usr/local/www/monica/storage/oauth-public.key)" >> /usr/local/www/monica/.env
+echo "PASSPORT_PRIVATE_KEY=$(tr -d '\r\n' < /usr/local/www/monica/storage/oauth-private.key)" >> /usr/local/www/monica/.env
+echo "PASSPORT_PUBLIC_KEY=$(tr -d '\r\n' < /usr/local/www/monica/storage/oauth-public.key)" >> /usr/local/www/monica/.env
 
 APACHE_USER=www
 
