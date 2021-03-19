@@ -76,7 +76,9 @@ php artisan setup:production -vvv --force
 
 # Encryption keys for the API
 php artisan passport:keys
-php artisan passport:client --personal --no-interaction
+api_client_out=$(php artisan passport:client --personal --no-interaction)
+client_id=$(echo "${api_client_out}" | grep -o 'Client ID.*' | cut -d" " -f3)
+client_secret=$(echo "${api_client_out}" | grep -o 'Client secret.*' | cut -d" " -f3)
 
 {
   echo "PASSPORT_PRIVATE_KEY=\"$(tr -d '\r\n' </usr/local/www/monica/storage/oauth-private.key)\""
