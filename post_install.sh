@@ -88,6 +88,9 @@ sed -i '' "s/.*PASSPORT_PERSONAL_ACCESS_CLIENT_SECRET=.*/PASSPORT_PERSONAL_ACCES
   echo "PASSPORT_PUBLIC_KEY=\"$(tr -d '\r\n' </usr/local/www/monica/storage/oauth-public.key)\""
 } >> /usr/local/www/monica/.env
 
+# Refresh config cache after .env updates
+php artisan config:cache
+
 APACHE_USER=www
 
 chgrp -R ${APACHE_USER} /usr/local/www/monica
