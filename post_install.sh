@@ -81,7 +81,6 @@ php artisan passport:keys
 php artisan passport:client --personal --no-interaction
 
 {
-  echo ''
   echo "PASSPORT_PRIVATE_KEY=\"$(tr -d '\r\n' </usr/local/www/monica/storage/oauth-private.key)\""
   echo ''
   echo "PASSPORT_PUBLIC_KEY=\"$(tr -d '\r\n' </usr/local/www/monica/storage/oauth-public.key)\""
