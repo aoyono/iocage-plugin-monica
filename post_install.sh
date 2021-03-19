@@ -83,9 +83,9 @@ sed -i '' "s/.*PASSPORT_PERSONAL_ACCESS_CLIENT_ID=.*/PASSPORT_PERSONAL_ACCESS_CL
 sed -i '' "s/.*PASSPORT_PERSONAL_ACCESS_CLIENT_SECRET=.*/PASSPORT_PERSONAL_ACCESS_CLIENT_SECRET=${client_secret}/" /usr/local/www/monica/.env
 
 {
-  echo "PASSPORT_PRIVATE_KEY=\"$(tr -d '\r\n' </usr/local/www/monica/storage/oauth-private.key)\""
+  echo "PASSPORT_PRIVATE_KEY=\"$(tr -d '\r\n' < /usr/local/www/monica/storage/oauth-private.key)\""
   echo ''
-  echo "PASSPORT_PUBLIC_KEY=\"$(tr -d '\r\n' </usr/local/www/monica/storage/oauth-public.key)\""
+  echo "PASSPORT_PUBLIC_KEY=\"$(tr -d '\r\n' < /usr/local/www/monica/storage/oauth-public.key)\""
 } >> /usr/local/www/monica/.env
 
 # Refresh config cache after .env updates
