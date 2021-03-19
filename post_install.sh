@@ -50,11 +50,9 @@ FLUSH PRIVILEGES;
 EOF
 
 JAIL_IP=$(ifconfig epair0b | grep 'inet' | awk -F ' ' '{ print $2 }')
-APP_KEY=$(pwgen -s 32 1)
 HASH_SALT=$(pwgen -s 25 1)
 
 # Setup some values to the .env file
-sed -i '' "s/.*APP_KEY=.*/APP_KEY=${APP_KEY}/" /usr/local/www/monica/.env
 sed -i '' "s/.*HASH_SALT=.*/HASH_SALT=${HASH_SALT}/" /usr/local/www/monica/.env
 sed -i '' "s/.*APP_URL=.*/APP_URL=http:\/\/${JAIL_IP}/" /usr/local/www/monica/.env
 sed -i '' "s/.*DB_DATABASE=.*/DB_DATABASE=${DB}/" /usr/local/www/monica/.env
