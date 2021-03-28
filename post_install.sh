@@ -27,7 +27,7 @@ echo "$DB" > /root/dbname
 echo "$USER" > /root/dbuser
 export LC_ALL=C
 cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 16 | head -n 1 > /root/dbpassword
-PASS=`cat /root/dbpassword`
+PASS=$(cat /root/dbpassword)
 
 service mysql-server start
 service redis start
@@ -49,15 +49,12 @@ CREATE DATABASE ${DB} CHARACTER SET utf8 COLLATE utf8_general_ci;
 FLUSH PRIVILEGES;
 EOF
 
-
 JAIL_IP=$(ifconfig epair0b | grep 'inet' | awk -F ' ' '{ print $2 }')
-APP_KEY=$(pwgen -s 32 1)
 HASH_SALT=$(pwgen -s 25 1)
 
 # Setup some values to the .env file
-sed -i '' "s/.*APP_KEY=.*/APP_KEY=${APP_KEY}/" /usr/local/www/monica/.env
 sed -i '' "s/.*HASH_SALT=.*/HASH_SALT=${HASH_SALT}/" /usr/local/www/monica/.env
-sed -i '' "s/.*APP_URL=.*/APP_URL=http://${JAIL_IP}/" /usr/local/www/monica/.env
+sed -i '' "s/.*APP_URL=.*/APP_URL=http:\/\/${JAIL_IP}/" /usr/local/www/monica/.env
 sed -i '' "s/.*DB_DATABASE=.*/DB_DATABASE=${DB}/" /usr/local/www/monica/.env
 sed -i '' "s/.*DB_USERNAME=.*/DB_USERNAME=${USER}/" /usr/local/www/monica/.env
 sed -i '' "s/.*DB_PASSWORD=.*/DB_PASSWORD=${PASS}/" /usr/local/www/monica/.env
@@ -69,7 +66,6 @@ sed -i '' "s/\(.*\)ServerName.*/\1ServerName ${JAIL_IP}/" /usr/local/etc/apache2
 # But we need to do it here because we are providing httpd.conf as an overlay to the plugin (which is probably copied to the plugin fs after all packages have been installed)
 sed -i '' "s/^# \(LoadModule php7_module\)\(.*\)/\1 \2/" /usr/local/etc/apache24/httpd.conf
 
-
 cp /usr/local/etc/php.ini-production /usr/local/etc/php.ini
 rehash
 
@@ -80,10 +76,20 @@ php artisan setup:production -vvv --force
 
 # Encryption keys for the API
 php artisan passport:keys
-php artisan passport:client --personal --no-interaction
+api_client_out=$(php artisan passport:client --personal --no-interaction)
+client_id=$(echo "${api_client_out}" | grep -o 'Client ID.*' | cut -d" " -f3)
+client_secret=$(echo "${api_client_out}" | grep -o 'Client secret.*' | cut -d" " -f3)
+sed -i '' "s/.*PASSPORT_PERSONAL_ACCESS_CLIENT_ID=.*/PASSPORT_PERSONAL_ACCESS_CLIENT_ID=${client_id}/" /usr/local/www/monica/.env
+sed -i '' "s/.*PASSPORT_PERSONAL_ACCESS_CLIENT_SECRET=.*/PASSPORT_PERSONAL_ACCESS_CLIENT_SECRET=${client_secret}/" /usr/local/www/monica/.env
 
-echo "PASSPORT_PRIVATE_KEY=$(sed -E ':a;N;$!ba;s/\r{0,1}\n/\\n/g' /usr/local/www/monica/storage/oauth-private.key)" >> /usr/local/www/monica/.env
-echo "PASSPORT_PUBLIC_KEY=$(sed -E ':a;N;$!ba;s/\r{0,1}\n/\\n/g' /usr/local/www/monica/storage/oauth-public.key)" >> /usr/local/www/monica/.env
+{
+  echo "PASSPORT_PRIVATE_KEY=\"$(tr -d '\r\n' < /usr/local/www/monica/storage/oauth-private.key)\""
+  echo ''
+  echo "PASSPORT_PUBLIC_KEY=\"$(tr -d '\r\n' < /usr/local/www/monica/storage/oauth-public.key)\""
+} >> /usr/local/www/monica/.env
+
+# Refresh config cache after .env updates
+php artisan config:cache
 
 APACHE_USER=www
 
@@ -94,9 +100,11 @@ service apache24 restart
 
 echo "* * * * *   /usr/bin/php /var/www/monica/artisan schedule:run >> /dev/null 2>&1" | crontab -u ${APACHE_USER} -
 
+{
+  echo "Welcome to monica, a PRM"
+  echo "The name of the database is: $DB"
+  echo "The administrator of the database is: $USER"
+  echo "The password of the database administrator is: $PASS"
+} >> /root/PLUGIN_INFO
 
-echo "Welcome to monica, a PRM" >> /root/PLUGIN_INFO
-echo "The name of the database is: $DB" >> /root/PLUGIN_INFO
-echo "The administrator of the database is: $USER" >> /root/PLUGIN_INFO
-echo "The password of the database administrator is: $PASS" >> /root/PLUGIN_INFO
 echo "The acme.sh client is available for use if you want to setup https. More info at: https://github.com/acmesh-official/acme.sh"
